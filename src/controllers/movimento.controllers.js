@@ -1,27 +1,21 @@
 import { ObjectId } from "mongodb"
 import { db } from "../database/database.connection.js"
-import { movimentoSchema } from "../schemas/movimento.schema.js"
 
 
-export async function novoMovimento(req, res) {
+
+export async function novoMovimento(req, res) {//usa token
     const { tipo } = req.params
     const { valor } = (req.body)
     const { descrição } = (req.body)
-    const { authorization } = req.headers;
-    const token = authorization?.replace('Bearer ', '')
-
-    if (!token) return res.sendStatus(401);
+    
     const novoMovimento = {
         valor: valor,
         tipo: tipo, 
         descrição: descrição
     }
-    const validar = movimentoSchema.validate(novoMovimento, { abortEarly: false })
-    if (validar.error) return res.sendStatus(422)
-    try {
-        const sessao = await db.collection("sessoes").findOne({ token });
-        if (!sessao) return res.sendStatus(401);
 
+    try {    
+        const sessao = res.locals.sessao
         await db.collection("movimento").insertOne({...novoMovimento, idUsuario: sessao.idUsuario})
         return res.status(201).send("Movimento adicionado!")
     }
@@ -30,17 +24,11 @@ export async function novoMovimento(req, res) {
     }
 }
 
-export async function paginaInicial(req, res){ //precisará de token
-    const { authorization } = req.headers;
-    const token = authorization?.replace('Bearer ', '')
 
-    if (!token) return res.sendStatus(401);
-
+export async function paginaInicial(req, res){ //usa token
 
     try {
-        const sessao = await db.collection("sessoes").findOne({ token });
-        if (!sessao) return res.sendStatus(401);
-
+const sessao = res.locals.sessao
         const usuario = await db.collection("usuarios").findOne({ _id: sessao.idUsuario })
         if (usuario) delete usuario.senha
 
@@ -52,7 +40,7 @@ export async function paginaInicial(req, res){ //precisará de token
     }
 }
 
-export async function deletarMovimentoPorId(req, res){
+export async function deletarMovimentoPorId(req, res){//uso próprio pra limpar os movimentos
     const { id } = req.params
 
     try {
