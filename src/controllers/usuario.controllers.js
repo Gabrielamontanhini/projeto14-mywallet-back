@@ -34,8 +34,8 @@ export async function fazerLogin(req, res) { //login
 
         const token = uuid()
         await db.collection("sessoes").insertOne({ idUsuario: usuarioCadastrado._id, token })
-
-        return res.status(200).send(token)
+const resposta = {nome: usuarioCadastrado.nome,token: token}
+        return res.status(200).send(resposta)
     }
     catch (err) {
         res.status(500).send(err.message)

@@ -1,5 +1,7 @@
 import { ObjectId } from "mongodb"
 import { db } from "../database/database.connection.js"
+import dayjs from "dayjs"
+
 
 
 
@@ -7,11 +9,13 @@ export async function novoMovimento(req, res) {//usa token
     const { tipo } = req.params
     const { valor } = (req.body)
     const { descrição } = (req.body)
+    const {dia} = (req.body)
     
     const novoMovimento = {
         valor: valor,
         tipo: tipo, 
-        descrição: descrição
+        descrição: descrição,
+        dia: dia
     }
 
     try {    
